@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FiArrowRight,
@@ -7,6 +7,12 @@ import {
   FiMail,
   FiUser,
 } from "react-icons/fi";
+
+import {
+  useGetCurrentUserQuery,
+  useLoginMutation,
+  useRegisterMutation,
+} from "@/features/auth/authApi";
 
 const authHighlights = [
   "Real-time team chat",
@@ -18,13 +24,23 @@ const authHighlights = [
 export const AuthPage = ({ mode = "login" }) => {
   const navigate = useNavigate();
   const isLogin = mode === "login";
+  const { data: currentUserData, isSuccess: isCurrentUserReady } =
+    useGetCurrentUserQuery();
+  const [login] = useLoginMutation();
+  const [register] = useRegisterMutation();
   const [form, setForm] = useState({
     name: "",
-    email: "alicia@luma.chat",
-    password: "password123",
+    email: "",
+    password: "",
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isCurrentUserReady && currentUserData?.data) {
+      navigate("/chat", { replace: true });
+    }
+  }, [currentUserData, isCurrentUserReady, navigate]);
 
   const fields = useMemo(
     () => [
@@ -75,10 +91,29 @@ export const AuthPage = ({ mode = "login" }) => {
     setIsSubmitting(true);
     setError("");
 
-    window.setTimeout(() => {
+    try {
+      const action = isLogin
+        ? await login({ email: form.email.trim(), password: form.password })
+        : await register({
+            name: form.name.trim(),
+            email: form.email.trim(),
+            password: form.password,
+          });
+
+      if (action.error) {
+        throw action.error;
+      }
+
+      navigate("/chat", { replace: true });
+    } catch (submitError) {
+      const message =
+        submitError?.data?.message ||
+        submitError?.message ||
+        "Unable to complete the request.";
+      setError(message);
+    } finally {
       setIsSubmitting(false);
-      navigate("/chat");
-    }, 700);
+    }
   };
 
   return (
@@ -229,20 +264,6 @@ export const AuthPage = ({ mode = "login" }) => {
                     ? "Sign in"
                     : "Create account"}
                 <FiArrowRight className="h-4 w-4" />
-              </button>
-
-              <div className="flex items-center gap-3 text-xs text-slate-400">
-                <span className="h-px flex-1 bg-slate-700" />
-                Demo access
-                <span className="h-px flex-1 bg-slate-700" />
-              </div>
-
-              <button
-                type="button"
-                onClick={() => navigate("/chat")}
-                className="w-full rounded-2xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-sm font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-900"
-              >
-                Continue to dashboard
               </button>
             </form>
           </div>

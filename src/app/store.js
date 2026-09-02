@@ -1,15 +1,17 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { setupListeners } from '@reduxjs/toolkit/query';
+import { configureStore } from "@reduxjs/toolkit";
+import { setupListeners } from "@reduxjs/toolkit/query";
 
-import { apiSlice } from '@/services/apiSlice';
+import { apiSlice } from "@/services/apiSlice";
+import authReducer from "@/features/auth/authSlice";
 
 export const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
-    // Feature slices are added as features are built (auth, chat, ui, ...).
+    auth: authReducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware),
-  devTools: import.meta.env.MODE !== 'production',
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(apiSlice.middleware),
+  devTools: import.meta.env.MODE !== "production",
 });
 
 setupListeners(store.dispatch);
