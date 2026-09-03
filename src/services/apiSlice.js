@@ -1,28 +1,34 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
+
 import { clearCredentials } from "@/features/auth/authSlice";
+import { axiosInstance } from "./axiosInstance";
+import { normalizeApiError } from "./apiErrorHandler";
 
-const baseUrl = import.meta.env.VITE_API_URL || "/api";
+/**
+ * RTK Query base query backed by the shared axiosInstance.
+ * Converts Axios responses/errors into the {data} / {error} shape RTK Query expects.
+ */
+const axiosBaseQuery = async (args, api) => {
+  const {
+    url,
+    method = "GET",
+    body,
+    params,
+  } = typeof args === "string" ? { url: args } : args;
 
-const baseQuery = fetchBaseQuery({
-  baseUrl,
-  prepareHeaders: (headers, { getState }) => {
-    headers.set("Accept", "application/json");
-    const token = getState().auth?.accessToken;
-    if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
+  try {
+    const response = await axiosInstance({ url, method, data: body, params });
+    return { data: response.data };
+  } catch (error) {
+    const normalized = error?.isNormalized ? error : normalizeApiError(error);
+
+    // Global 401 handler: clear credentials so ProtectedRoute redirects to login.
+    if (normalized.statusCode === 401) {
+      api.dispatch(clearCredentials());
     }
-    return headers;
-  },
-});
 
-const customBaseQuery = async (args, api, extraOptions) => {
-  const result = await baseQuery(args, api, extraOptions);
-
-  if (result.error && result.error.status === 401) {
-    api.dispatch(clearCredentials());
+    return { error: normalized };
   }
-
-  return result;
 };
 
 /**
@@ -31,7 +37,7 @@ const customBaseQuery = async (args, api, extraOptions) => {
  */
 export const apiSlice = createApi({
   reducerPath: "api",
-  baseQuery: customBaseQuery,
+  baseQuery: axiosBaseQuery,
   tagTypes: ["Auth", "User", "Conversation", "Message", "Group"],
   endpoints: () => ({}),
 });

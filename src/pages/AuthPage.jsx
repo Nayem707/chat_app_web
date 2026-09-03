@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FiArrowRight,
@@ -8,11 +8,7 @@ import {
   FiUser,
 } from "react-icons/fi";
 
-import {
-  useGetCurrentUserQuery,
-  useLoginMutation,
-  useRegisterMutation,
-} from "@/features/auth/authApi";
+import { useLoginMutation, useRegisterMutation } from "@/features/auth/authApi";
 
 const authHighlights = [
   "Real-time team chat",
@@ -24,8 +20,6 @@ const authHighlights = [
 export const AuthPage = ({ mode = "login" }) => {
   const navigate = useNavigate();
   const isLogin = mode === "login";
-  const { data: currentUserData, isSuccess: isCurrentUserReady } =
-    useGetCurrentUserQuery();
   const [login] = useLoginMutation();
   const [register] = useRegisterMutation();
   const [form, setForm] = useState({
@@ -35,12 +29,6 @@ export const AuthPage = ({ mode = "login" }) => {
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (isCurrentUserReady && currentUserData?.data) {
-      navigate("/chat", { replace: true });
-    }
-  }, [currentUserData, isCurrentUserReady, navigate]);
 
   const fields = useMemo(
     () => [
@@ -106,10 +94,8 @@ export const AuthPage = ({ mode = "login" }) => {
 
       navigate("/chat", { replace: true });
     } catch (submitError) {
-      const message =
-        submitError?.data?.message ||
-        submitError?.message ||
-        "Unable to complete the request.";
+      // Errors from axiosBaseQuery are { message, statusCode } — not { data: { message } }.
+      const message = submitError?.message || "Unable to complete the request.";
       setError(message);
     } finally {
       setIsSubmitting(false);

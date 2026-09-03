@@ -31,11 +31,8 @@ import { useSearchUsersQuery } from "@/features/users/userApi";
 
 export const ChatPage = () => {
   const navigate = useNavigate();
-  const {
-    data: currentUserData,
-    isLoading: isCurrentUserLoading,
-    isError: isCurrentUserError,
-  } = useGetCurrentUserQuery();
+  const { data: currentUserData, isLoading: isCurrentUserLoading } =
+    useGetCurrentUserQuery();
   const currentUser = currentUserData?.data;
   const [logout] = useLogoutMutation();
   const [sendMessage] = useSendMessageMutation();
@@ -48,15 +45,12 @@ export const ChatPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [typingUsers, setTypingUsers] = useState([]);
 
-  const { data: conversationsData, isLoading: areConversationsLoading } =
+  const { data: conversationsData } =
     useGetConversationsQuery(undefined, { skip: !currentUser });
-  const conversations = conversationsData?.data || [];
-
-  useEffect(() => {
-    if (!isCurrentUserLoading && !currentUser && isCurrentUserError) {
-      navigate("/login", { replace: true });
-    }
-  }, [currentUser, isCurrentUserError, isCurrentUserLoading, navigate]);
+  const conversations = useMemo(
+    () => conversationsData?.data || [],
+    [conversationsData],
+  );
 
   useEffect(() => {
     if (!selectedId && conversations.length > 0) {
@@ -96,7 +90,7 @@ export const ChatPage = () => {
     if (!content || !activeConversation) return;
 
     try {
-      await sendMessage({ conversationId: activeConversation.id, content });
+      await sendMessage({ conversationId: activeConversation.id, content }).unwrap();
       setDraft("");
       setTypingUsers([]);
     } catch (error) {
@@ -112,7 +106,7 @@ export const ChatPage = () => {
         name,
         description: `Group chat created by ${currentUser?.name || "user"}`,
         memberIds: members,
-      });
+      }).unwrap();
 
       const createdGroup = result?.data?.data;
       if (createdGroup?.id) {
@@ -123,10 +117,10 @@ export const ChatPage = () => {
     }
   };
 
-  const handleCreateDirectConversation = async (userId) => {
+  const _handleCreateDirectConversation = async (userId) => {
     if (!userId) return;
     try {
-      const result = await createConversation({ type: "DIRECT", userId });
+      const result = await createConversation({ type: "DIRECT", userId }).unwrap();
       const newConversation = result?.data?.data;
       if (newConversation?.id) {
         setSelectedId(newConversation.id);
@@ -288,7 +282,7 @@ export const ChatPage = () => {
                     onChange={(event) => setDraft(event.target.value)}
                     rows={1}
                     placeholder="Type your message..."
-                    className="max-h-32 min-h-[44px] flex-1 resize-none bg-transparent px-2 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none"
+                    className="max-h-32 min-h-11 flex-1 resize-none bg-transparent px-2 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none"
                     onKeyDown={(event) => {
                       if (event.key === "Enter" && !event.shiftKey) {
                         event.preventDefault();
