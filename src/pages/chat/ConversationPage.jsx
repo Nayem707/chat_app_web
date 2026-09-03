@@ -160,7 +160,7 @@ export const ConversationPage = () => {
   return (
     <>
       {/* Center: conversation area */}
-      <div className="flex min-w-0 flex-1 flex-col border-slate-800 lg:border-l lg:border-r">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden border-slate-800 lg:border-l lg:border-r">
         {/* Conversation header */}
         <header className="flex items-center justify-between border-b border-slate-800 bg-slate-950/70 px-4 py-3 sm:px-5">
           <div className="flex min-w-0 items-center gap-3">
@@ -283,7 +283,7 @@ export const ConversationPage = () => {
         </div>
 
         {/* Messages */}
-        <div className="flex min-h-0 flex-1 flex-col bg-slate-950/60">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-slate-950/60">
           {areMessagesLoading ? (
             <div className="flex flex-1 items-center justify-center text-sm text-slate-400">
               Loading messages…

@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 
 export const AppLayout = () => (
-  <div className="min-h-screen bg-slate-950 text-slate-100">
+  <div className="h-screen overflow-hidden bg-slate-950 text-slate-100">
     <Outlet />
   </div>
 );
