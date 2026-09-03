@@ -6,6 +6,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { PATHS } from "@/routes/routePaths";
 import { CHAT_FILTER } from "@/features/chat/chat.constants";
 import { CreateGroupModal } from "@/features/groups/components/CreateGroupModal";
+import { normalizeUserList } from "@/features/groups/groupUtils";
 import {
   useCreateGroupMutation,
   useGetConversationsQuery,
@@ -45,7 +46,7 @@ export const ChatSidebar = () => {
   );
 
   const { data: usersData } = useSearchUsersQuery("", { skip: !currentUser });
-  const users = usersData?.data || [];
+  const users = normalizeUserList(usersData);
 
   const [createGroup] = useCreateGroupMutation();
 

@@ -2,15 +2,18 @@ import { useMemo, useState } from "react";
 import { FiX } from "react-icons/fi";
 
 import { Avatar } from "@/components/ui/Avatar";
+import { normalizeUserList } from "@/features/groups/groupUtils";
 
-export const CreateGroupModal = ({ isOpen, onClose, users = [], onCreate }) => {
+export const CreateGroupModal = ({ isOpen, onClose, users, onCreate }) => {
   const [name, setName] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
   const [error, setError] = useState("");
 
+  const safeUsers = useMemo(() => normalizeUserList(users), [users]);
+
   const filteredUsers = useMemo(
-    () => users.filter((u) => u.id !== "u1"),
-    [users],
+    () => safeUsers.filter((u) => u?.id !== "u1"),
+    [safeUsers],
   );
 
   const toggleUser = (id) => {
