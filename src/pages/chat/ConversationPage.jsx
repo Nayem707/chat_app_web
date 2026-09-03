@@ -32,6 +32,7 @@ import {
 import { useSearchUsersQuery } from "@/features/users/userApi";
 import { PATHS } from "@/routes/routePaths";
 import { selectTypingUsers } from "@/features/chat/chatSlice";
+import { normalizeUserList } from "@/features/groups/groupUtils";
 import { socketService } from "@/services/socketService";
 
 const MENU_ITEMS = [
@@ -90,7 +91,7 @@ export const ConversationPage = () => {
   );
 
   const { data: usersData } = useSearchUsersQuery("", { skip: !currentUser });
-  const users = usersData?.data || [];
+  const users = useMemo(() => normalizeUserList(usersData), [usersData]);
 
   const activeConversation = useMemo(
     () => conversations.find((c) => c.id === conversationId) || null,
