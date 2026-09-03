@@ -16,10 +16,22 @@ const chatSlice = createSlice({
     setTypingUsers(state, { payload: { conversationId, userIds } }) {
       state.typingUsers[conversationId] = userIds;
     },
+    setUserTyping(state, { payload: { conversationId, userId, isTyping } }) {
+      const current = state.typingUsers[conversationId] ?? [];
+      if (isTyping) {
+        if (!current.includes(userId))
+          state.typingUsers[conversationId] = [...current, userId];
+      } else {
+        state.typingUsers[conversationId] = current.filter(
+          (id) => id !== userId,
+        );
+      }
+    },
   },
 });
 
-export const { setDraft, clearDraft, setTypingUsers } = chatSlice.actions;
+export const { setDraft, clearDraft, setTypingUsers, setUserTyping } =
+  chatSlice.actions;
 export const selectDraft = (conversationId) => (state) =>
   state.chat.drafts[conversationId] ?? "";
 export const selectTypingUsers = (conversationId) => (state) =>

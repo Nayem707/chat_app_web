@@ -1,12 +1,18 @@
-import { useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   FiBell,
+  FiBellOff,
+  FiLogOut,
   FiMessageSquare,
   FiMoreHorizontal,
   FiPhone,
   FiSearch,
   FiSettings,
+  FiShield,
+  FiUser,
+  FiUsers,
   FiVideo,
 } from "react-icons/fi";
 
@@ -25,6 +31,17 @@ import {
 } from "@/features/auth/authApi";
 import { useSearchUsersQuery } from "@/features/users/userApi";
 import { PATHS } from "@/routes/routePaths";
+import { selectTypingUsers } from "@/features/chat/chatSlice";
+import { socketService } from "@/services/socketService";
+
+const MENU_ITEMS = [
+  { label: "Profile", icon: FiUser, to: PATHS.SETTINGS_PROFILE },
+  { label: "Groups", icon: FiUsers, to: PATHS.GROUPS },
+  { label: "Notifications", icon: FiBell, to: PATHS.SETTINGS_NOTIFICATIONS },
+  { label: "Privacy", icon: FiShield, to: PATHS.SETTINGS_PRIVACY },
+  { label: "Appearance", icon: FiBellOff, to: PATHS.SETTINGS_APPEARANCE },
+  { label: "Settings", icon: FiSettings, to: PATHS.SETTINGS_PROFILE },
+];
 
 export const ConversationPage = () => {
   const { conversationId } = useParams();
@@ -36,7 +53,33 @@ export const ConversationPage = () => {
   const [logout] = useLogoutMutation();
   const [sendMessage] = useSendMessageMutation();
   const [draft, setDraft] = useState("");
-  const [typingUsers] = useState([]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const typingTimeoutRef = useRef(null);
+  const menuRef = useRef(null);
+
+  const typingUsers = useSelector(selectTypingUsers(conversationId));
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Join / leave the socket room for this conversation
+  useEffect(() => {
+    if (!conversationId) return;
+    socketService.emit("join_conversation", { conversationId });
+    return () => {
+      socketService.emit("leave_conversation", { conversationId });
+      socketService.emit("typing_stop", { conversationId });
+      clearTimeout(typingTimeoutRef.current);
+    };
+  }, [conversationId]);
 
   const { data: conversationsData } = useGetConversationsQuery(undefined, {
     skip: !currentUser,
@@ -73,6 +116,7 @@ export const ConversationPage = () => {
   };
 
   const handleLogout = async () => {
+    setIsMenuOpen(false);
     await logout();
     navigate(PATHS.LOGIN, { replace: true });
   };
@@ -121,7 +165,11 @@ export const ConversationPage = () => {
               </div>
               <p className="truncate text-xs text-slate-400">
                 {activeConversation.type === "GROUP"
-                  ? `${activeConversation.members.length} members • ${activeConversation.status === "online" ? "active now" : "offline"}`
+                  ? `${activeConversation.members.length} members • ${
+                      activeConversation.status === "online"
+                        ? "active now"
+                        : "offline"
+                    }`
                   : activeConversation.status === "online"
                     ? "online now"
                     : "last seen recently"}
@@ -143,14 +191,58 @@ export const ConversationPage = () => {
                 <Icon className="h-4 w-4" />
               </button>
             ))}
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-300 transition hover:border-slate-600 hover:text-white"
-              aria-label="Log out"
-            >
-              <FiMoreHorizontal className="h-4 w-4" />
-            </button>
+
+            {/* More options dropdown */}
+            <div ref={menuRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen((prev) => !prev)}
+                className={`flex h-10 w-10 items-center justify-center rounded-full border bg-slate-900 transition hover:border-slate-600 hover:text-white ${
+                  isMenuOpen
+                    ? "border-violet-500/60 text-violet-300"
+                    : "border-slate-700 text-slate-300"
+                }`}
+                aria-label="More options"
+                aria-expanded={isMenuOpen}
+              >
+                <FiMoreHorizontal className="h-4 w-4" />
+              </button>
+
+              {isMenuOpen && (
+                <div className="absolute right-0 top-12 z-50 w-52 overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl shadow-slate-950/60">
+                  <div className="border-b border-slate-800 px-3 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+                      Navigate
+                    </p>
+                  </div>
+
+                  <div className="py-1">
+                    {MENU_ITEMS.map(({ label, icon: Icon, to }) => (
+                      <Link
+                        key={label}
+                        to={to}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                      >
+                        <Icon className="h-4 w-4 text-slate-400" />
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+
+                  <div className="border-t border-slate-800 py-1">
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
+                    >
+                      <FiLogOut className="h-4 w-4" />
+                      Log out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
@@ -198,7 +290,15 @@ export const ConversationPage = () => {
               </button>
               <textarea
                 value={draft}
-                onChange={(e) => setDraft(e.target.value)}
+                onChange={(e) => {
+                  setDraft(e.target.value);
+                  socketService.emit("typing_start", { conversationId });
+                  clearTimeout(typingTimeoutRef.current);
+                  typingTimeoutRef.current = setTimeout(
+                    () => socketService.emit("typing_stop", { conversationId }),
+                    2000,
+                  );
+                }}
                 rows={1}
                 placeholder="Type your message…"
                 className="max-h-32 min-h-11 flex-1 resize-none bg-transparent px-2 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none"
