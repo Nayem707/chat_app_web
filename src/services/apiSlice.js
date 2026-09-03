@@ -15,7 +15,6 @@ const axiosBaseQuery = async (args, api) => {
     body,
     params,
   } = typeof args === "string" ? { url: args } : args;
-
   try {
     const response = await axiosInstance({ url, method, data: body, params });
     return { data: response.data };

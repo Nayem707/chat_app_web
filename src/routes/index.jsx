@@ -5,15 +5,15 @@ import { AppLayout } from "@/layouts/AppLayout";
 import { ChatLayout } from "@/layouts/ChatLayout";
 import { SettingsLayout } from "@/layouts/SettingsLayout";
 
-import { PublicRoute } from "./publicRoutes";
-import { ProtectedRoute } from "./protectedRoutes";
+import { PublicRoute } from "./guard/publicRoutes";
+import { ProtectedRoute } from "./guard/protectedRoutes";
 import { authRoutes } from "./authRoutes";
 import { PATHS } from "./routePaths";
 
 import { ChatPage } from "@/pages/chat/ChatPage";
 import { ConversationPage } from "@/pages/chat/ConversationPage";
-import { NotFoundPage } from "@/pages/NotFoundPage";
-import { UnauthorizedPage } from "@/pages/UnauthorizedPage";
+import { NotFoundPage } from "@/pages/error/NotFoundPage";
+import { UnauthorizedPage } from "@/pages/error/UnauthorizedPage";
 import { GroupsPage } from "@/pages/groups/GroupsPage";
 import { CreateGroupPage } from "@/pages/groups/CreateGroupPage";
 import { GroupDetailsPage } from "@/pages/groups/GroupDetailsPage";
