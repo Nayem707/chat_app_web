@@ -32,7 +32,10 @@ import {
 import { useSearchUsersQuery } from "@/features/users/userApi";
 import { PATHS } from "@/routes/routePaths";
 import { selectTypingUsers } from "@/features/chat/chatSlice";
-import { normalizeUserList } from "@/features/groups/groupUtils";
+import {
+  getConversationPeerUser,
+  normalizeUserList,
+} from "@/features/groups/groupUtils";
 import { socketService } from "@/services/socketService";
 
 const MENU_ITEMS = [
@@ -127,7 +130,7 @@ export const ConversationPage = () => {
         },
       }).unwrap();
     } catch (err) {
-      setDraft(content); // restore on failure
+      setDraft(content);
       console.error("Failed to send message", err);
     }
   };
@@ -148,13 +151,11 @@ export const ConversationPage = () => {
     );
   }
 
-  const activeMemberIds = activeConversation.members || [];
-  const peerUser =
-    users.find(
-      (u) => u.id === activeMemberIds.find((id) => id !== currentUser?.id),
-    ) ||
-    users[0] ||
-    null;
+  const peerUser = getConversationPeerUser({
+    conversation: activeConversation,
+    currentUserId: currentUser?.id,
+    users,
+  });
 
   return (
     <>

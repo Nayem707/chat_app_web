@@ -2,6 +2,14 @@ import { FiMapPin, FiPhone, FiUser } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 
 export const UserProfilePanel = ({ user }) => {
+  if (!user) {
+    return (
+      <div className="flex h-full items-center justify-center p-5 text-sm text-slate-400">
+        Select a conversation to view the user profile.
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-slate-800 p-5">
