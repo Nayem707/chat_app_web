@@ -1,5 +1,5 @@
 import { FiMapPin, FiPhone, FiUser } from "react-icons/fi";
-import { Avatar } from "./Avatar";
+import { Avatar } from "@/components/ui/Avatar";
 
 export const UserProfilePanel = ({ user }) => {
   return (

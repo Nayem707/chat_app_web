@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { FiCheck, FiClock } from "react-icons/fi";
-import { Avatar } from "./Avatar";
+import { Avatar } from "@/components/ui/Avatar";
 
 const formatMessageTime = (value) =>
   new Intl.DateTimeFormat("en", {
