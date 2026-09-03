@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { FiCheck, FiClock } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 
@@ -22,10 +22,16 @@ export const MessageList = ({
   typingUsers = [],
   conversationType = "DIRECT",
 }) => {
+  const bottomRef = useRef(null);
   const visibleTyping = useMemo(
     () => typingUsers.filter((userId) => userId !== currentUserId),
     [currentUserId, typingUsers],
   );
+
+  // Scroll to the latest message whenever the list changes.
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length, visibleTyping.length]);
 
   return (
     <div className="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.08),_transparent_28%)] px-3 py-4 sm:px-4">
@@ -104,6 +110,7 @@ export const MessageList = ({
             </span>
           </div>
         )}
+        <div ref={bottomRef} />
       </div>
     </div>
   );

@@ -23,12 +23,17 @@ export const chatApi = apiSlice.injectEndpoints({
         `/conversations/${conversationId}/messages?page=${page}&limit=${limit}`,
       serializeQueryArgs: ({ endpointName, queryArgs }) =>
         `${endpointName}:${queryArgs?.conversationId}`,
-      merge: (currentCache, newItems) => {
-        if (!newItems?.items) return currentCache;
+      // On page 1 replace the cache; on later pages append (infinite scroll).
+      merge: (currentCache, newItems, { arg }) => {
+        const newData = newItems?.data;
+        if (!newData?.items) return currentCache;
+        if ((arg.page ?? 1) <= 1) return newItems;
         return {
-          ...currentCache,
           ...newItems,
-          items: [...(currentCache.items || []), ...(newItems.items || [])],
+          data: {
+            ...newData,
+            items: [...(currentCache?.data?.items ?? []), ...newData.items],
+          },
         };
       },
       forceRefetch: ({ currentArg, previousArg }) =>
@@ -41,7 +46,36 @@ export const chatApi = apiSlice.injectEndpoints({
         method: "POST",
         body: { content },
       }),
-      invalidatesTags: ["Message", "Conversation"],
+      // Optimistically append the message so it appears immediately.
+      async onQueryStarted(
+        { conversationId, content, optimisticMessage },
+        { dispatch, queryFulfilled },
+      ) {
+        if (!optimisticMessage) return;
+        const cacheKey = { conversationId, page: 1, limit: 50 };
+        const patch = dispatch(
+          chatApi.util.updateQueryData("getMessages", cacheKey, (draft) => {
+            if (draft?.data?.items) draft.data.items.push(optimisticMessage);
+          }),
+        );
+        try {
+          const { data: result } = await queryFulfilled;
+          // Replace temp entry with the real server message.
+          dispatch(
+            chatApi.util.updateQueryData("getMessages", cacheKey, (draft) => {
+              if (!draft?.data?.items) return;
+              const idx = draft.data.items.findIndex(
+                (m) => m.id === optimisticMessage.id,
+              );
+              if (idx !== -1) draft.data.items[idx] = result.data;
+            }),
+          );
+        } catch {
+          patch.undo();
+        }
+      },
+      // Only refresh the sidebar preview; message cache is updated above.
+      invalidatesTags: ["Conversation"],
     }),
     editMessage: builder.mutation({
       query: ({ conversationId, messageId, content }) => ({

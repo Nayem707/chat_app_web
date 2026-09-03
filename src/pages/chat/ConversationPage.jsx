@@ -106,11 +106,27 @@ export const ConversationPage = () => {
 
   const handleSend = async () => {
     const content = draft.trim();
-    if (!content || !conversationId) return;
+    if (!content || !conversationId || !currentUser) return;
+
+    setDraft("");
+
     try {
-      await sendMessage({ conversationId, content }).unwrap();
-      setDraft("");
+      await sendMessage({
+        conversationId,
+        content,
+        optimisticMessage: {
+          id: `temp_${Date.now()}`,
+          conversationId,
+          senderId: currentUser.id,
+          senderName: currentUser.name,
+          text: content,
+          content,
+          status: "SENT",
+          createdAt: new Date().toISOString(),
+        },
+      }).unwrap();
     } catch (err) {
+      setDraft(content); // restore on failure
       console.error("Failed to send message", err);
     }
   };
