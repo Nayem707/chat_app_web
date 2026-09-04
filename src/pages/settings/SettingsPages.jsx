@@ -138,16 +138,12 @@ export const ProfileSettingsPage = () => {
         {/* Avatar row */}
         <div className="-mt-0 flex items-end justify-between px-5 pb-4">
           <div className="relative">
-            <Avatar
-              user={currentUser}
-              size="xl"
-              className="ring-4 ring-slate-900 bg-amber-50"
-            />
+            <Avatar user={currentUser} size="xl" className="ring-2 " />
             <button
               type="button"
               disabled={isUploadingAvatar}
               onClick={() => avatarInputRef.current?.click()}
-              className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-white shadow transition hover:bg-violet-500 disabled:opacity-50"
+              className="absolute bottom-0 left-10 flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-white shadow transition hover:bg-violet-500 disabled:opacity-50"
               title="Change avatar"
             >
               <FiCamera className="h-3 w-3" />

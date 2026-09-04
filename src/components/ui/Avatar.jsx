@@ -18,7 +18,7 @@ export const Avatar = ({ user, size = "md", className = "" }) => {
         src={avatarUrl}
         alt={user?.name || "User"}
         title={user?.name || "User"}
-        className={`rounded-full object-cover ${sizeClasses[size]} ${className}`}
+        className={`rounded-full ring ring-white object-cover ${sizeClasses[size]} ${className}`}
       />
     );
   }

@@ -74,7 +74,7 @@ export const UserProfileModal = ({ user, onClose }) => {
           {/* Avatar row overlapping cover */}
           <div className="-mt-8 flex items-end justify-between px-5">
             <div className="relative">
-              <Avatar user={user} size="xl" className="ring-4 ring-slate-900" />
+              <Avatar user={user} size="xl" className="ring-2 ring-slate-900" />
               {user.status === "online" && (
                 <span className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full border-2 border-slate-900 bg-emerald-400" />
               )}

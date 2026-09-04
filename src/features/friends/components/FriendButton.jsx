@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { FiUserPlus, FiUserCheck, FiUserX, FiClock, FiX } from "react-icons/fi";
+import { FiUserPlus, FiUserCheck, FiClock, FiX } from "react-icons/fi";
 import {
   useGetFriendStatusQuery,
   useSendFriendRequestMutation,
@@ -29,7 +28,7 @@ export const FriendButton = ({ userId }) => {
 
   if (friendStatus === "ACCEPTED") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1.5 text-xs font-medium text-emerald-400">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-medium text-emerald-100">
         <FiUserCheck className="h-3.5 w-3.5" />
         Friends
       </span>
