@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { FiSearch, FiUsers } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 import { FriendButton } from "@/features/friends/components/FriendButton";
+import { UserProfileModal } from "@/features/users/components/UserProfileModal";
 import { useSearchUsersQuery } from "@/features/users/userApi";
 import { useGetIncomingRequestsQuery } from "@/features/friends/friendApi";
 import { normalizeUserList } from "@/features/groups/groupUtils";
@@ -11,6 +12,7 @@ const TABS = ["All Users", "Friend Requests"];
 export const UsersPage = () => {
   const [tab, setTab] = useState("All Users");
   const [query, setQuery] = useState("");
+  const [profileUser, setProfileUser] = useState(null);
 
   const { data: usersData, isLoading: usersLoading } =
     useSearchUsersQuery(query);
@@ -77,15 +79,23 @@ export const UsersPage = () => {
       {isLoading ? (
         <div className="py-16 text-center text-sm text-slate-400">Loading…</div>
       ) : tab === "All Users" ? (
-        <UserList users={users} />
+        <UserList users={users} onSelect={setProfileUser} />
       ) : (
-        <IncomingRequestList requests={incomingRequests} />
+        <IncomingRequestList
+          requests={incomingRequests}
+          onSelect={setProfileUser}
+        />
       )}
+
+      <UserProfileModal
+        user={profileUser}
+        onClose={() => setProfileUser(null)}
+      />
     </div>
   );
 };
 
-const UserList = ({ users }) => {
+const UserList = ({ users, onSelect }) => {
   if (users.length === 0)
     return (
       <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 p-8 text-center text-sm text-slate-400">
@@ -100,13 +110,19 @@ const UserList = ({ users }) => {
           key={user.id}
           className="flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3"
         >
-          <Avatar user={user} size="md" />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-white">
-              {user.name}
-            </p>
-            <p className="truncate text-xs text-slate-400">{user.email}</p>
-          </div>
+          <button
+            type="button"
+            onClick={() => onSelect(user)}
+            className="flex min-w-0 flex-1 items-center gap-3 text-left"
+          >
+            <Avatar user={user} size="md" />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-white">
+                {user.name}
+              </p>
+              <p className="truncate text-xs text-slate-400">{user.email}</p>
+            </div>
+          </button>
           <FriendButton userId={user.id} />
         </div>
       ))}
@@ -114,7 +130,7 @@ const UserList = ({ users }) => {
   );
 };
 
-const IncomingRequestList = ({ requests }) => {
+const IncomingRequestList = ({ requests, onSelect }) => {
   if (requests.length === 0)
     return (
       <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 p-8 text-center text-sm text-slate-400">
@@ -129,16 +145,21 @@ const IncomingRequestList = ({ requests }) => {
           key={req.id}
           className="flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3"
         >
-          <Avatar user={req.requester} size="md" />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-white">
-              {req.requester?.name}
-            </p>
-            <p className="truncate text-xs text-slate-400">
-              {req.requester?.email}
-            </p>
-          </div>
-          {/* FriendButton reads live status by userId so it shows Accept/Reject */}
+          <button
+            type="button"
+            onClick={() => onSelect(req.requester)}
+            className="flex min-w-0 flex-1 items-center gap-3 text-left"
+          >
+            <Avatar user={req.requester} size="md" />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-white">
+                {req.requester?.name}
+              </p>
+              <p className="truncate text-xs text-slate-400">
+                {req.requester?.email}
+              </p>
+            </div>
+          </button>
           <FriendButton userId={req.requester?.id} />
         </div>
       ))}

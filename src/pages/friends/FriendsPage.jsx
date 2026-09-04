@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiMessageSquare, FiUsers } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 import { PATHS } from "@/routes/routePaths";
+import { UserProfileModal } from "@/features/users/components/UserProfileModal";
 import { useGetFriendsQuery } from "@/features/friends/friendApi";
 import { useCreateConversationMutation } from "@/features/chat/chatApi";
 
 export const FriendsPage = () => {
   const navigate = useNavigate();
+  const [profileUser, setProfileUser] = useState(null);
   const { data: friendsData, isLoading } = useGetFriendsQuery();
   const friends = friendsData?.data ?? [];
 
@@ -60,20 +63,26 @@ export const FriendsPage = () => {
               key={friend.id}
               className="flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3"
             >
-              <div className="relative shrink-0">
-                <Avatar user={friend} size="md" />
-                {friend.status === "online" && (
-                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-slate-950 bg-emerald-400" />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white">
-                  {friend.name}
-                </p>
-                <p className="truncate text-xs text-slate-400">
-                  {friend.email}
-                </p>
-              </div>
+              <button
+                type="button"
+                onClick={() => setProfileUser(friend)}
+                className="flex min-w-0 flex-1 items-center gap-3 text-left"
+              >
+                <div className="relative shrink-0">
+                  <Avatar user={friend} size="md" />
+                  {friend.status === "online" && (
+                    <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-slate-950 bg-emerald-400" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-white">
+                    {friend.name}
+                  </p>
+                  <p className="truncate text-xs text-slate-400">
+                    {friend.email}
+                  </p>
+                </div>
+              </button>
               <button
                 type="button"
                 disabled={isStarting}
@@ -87,6 +96,11 @@ export const FriendsPage = () => {
           ))}
         </div>
       )}
+
+      <UserProfileModal
+        user={profileUser}
+        onClose={() => setProfileUser(null)}
+      />
     </div>
   );
 };
