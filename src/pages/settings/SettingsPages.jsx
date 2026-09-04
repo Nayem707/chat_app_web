@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { FiUser, FiMail, FiAtSign, FiEdit2, FiCheck, FiX } from "react-icons/fi";
+import {
+  FiUser,
+  FiMail,
+  FiAtSign,
+  FiEdit2,
+  FiCheck,
+  FiX,
+} from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 import { useGetCurrentUserQuery } from "@/features/auth/authApi";
 import { useUpdateProfileMutation } from "@/features/users/userApi";
@@ -56,7 +63,9 @@ export const ProfileSettingsPage = () => {
           <p className="truncate text-base font-semibold text-white">
             {currentUser?.name}
           </p>
-          <p className="truncate text-sm text-slate-400">{currentUser?.email}</p>
+          <p className="truncate text-sm text-slate-400">
+            {currentUser?.email}
+          </p>
           <span
             className={`mt-1 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${
               currentUser?.status === "online"
@@ -66,7 +75,9 @@ export const ProfileSettingsPage = () => {
           >
             <span
               className={`h-1.5 w-1.5 rounded-full ${
-                currentUser?.status === "online" ? "bg-emerald-400" : "bg-slate-500"
+                currentUser?.status === "online"
+                  ? "bg-emerald-400"
+                  : "bg-slate-500"
               }`}
             />
             {currentUser?.status === "online" ? "Online" : "Offline"}
