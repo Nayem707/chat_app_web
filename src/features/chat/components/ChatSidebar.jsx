@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import {
   FiBell,
@@ -49,22 +49,11 @@ export const ChatSidebar = () => {
   const [filter, setFilter] = useState(CHAT_FILTER.ALL);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuRef = useRef(null);
 
   const { data: currentUserData } = useGetCurrentUserQuery();
   const currentUser = currentUserData?.data;
 
   const [logout] = useLogoutMutation();
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setIsMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
 
   const handleLogout = async () => {
     setIsMenuOpen(false);
@@ -138,82 +127,14 @@ export const ChatSidebar = () => {
                 <FiPlus className="h-4 w-4" />
               </button>
 
-              {/* More options dropdown */}
-              <div ref={menuRef} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsMenuOpen((prev) => !prev)}
-                  className={`flex h-10 w-10 items-center justify-center rounded-full border bg-slate-900 transition hover:border-violet-500 hover:text-violet-200 ${
-                    isMenuOpen
-                      ? "border-violet-500/60 text-violet-300"
-                      : "border-slate-700 text-slate-200"
-                  }`}
-                  aria-label="More options"
-                  aria-expanded={isMenuOpen}
-                >
-                  <FiMoreHorizontal className="h-4 w-4" />
-                </button>
-
-                {isMenuOpen && (
-                  <div className="absolute right-0 top-12 z-50 w-52 overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl shadow-slate-950/60">
-                    <div className="border-b border-slate-800 px-3 py-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-                        Navigate
-                      </p>
-                    </div>
-                    <div className="py-1">
-                      {[
-                        {
-                          label: "Profile",
-                          icon: FiUser,
-                          to: PATHS.SETTINGS_PROFILE,
-                        },
-                        { label: "Groups", icon: FiUsers, to: PATHS.GROUPS },
-                        {
-                          label: "Notifications",
-                          icon: FiBell,
-                          to: PATHS.SETTINGS_NOTIFICATIONS,
-                        },
-                        {
-                          label: "Privacy",
-                          icon: FiShield,
-                          to: PATHS.SETTINGS_PRIVACY,
-                        },
-                        {
-                          label: "Appearance",
-                          icon: FiBellOff,
-                          to: PATHS.SETTINGS_APPEARANCE,
-                        },
-                        {
-                          label: "Settings",
-                          icon: FiSettings,
-                          to: PATHS.SETTINGS_PROFILE,
-                        },
-                      ].map(({ label, icon: Icon, to }) => (
-                        <Link
-                          key={label}
-                          to={to}
-                          onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
-                        >
-                          <Icon className="h-4 w-4 text-slate-400" />
-                          {label}
-                        </Link>
-                      ))}
-                    </div>
-                    <div className="border-t border-slate-800 py-1">
-                      <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
-                      >
-                        <FiLogOut className="h-4 w-4" />
-                        Log out
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(true)}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-200 transition hover:border-violet-500 hover:text-violet-200"
+                aria-label="More options"
+              >
+                <FiSettings className="h-4 w-4" />
+              </button>
             </div>
           </div>
 
@@ -337,6 +258,78 @@ export const ChatSidebar = () => {
         users={users}
         onCreate={handleCreateGroup}
       />
+
+      {/* Navigation modal */}
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <div
+            className="w-72 overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl shadow-slate-950/60"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+                Navigate
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-slate-500 transition hover:text-slate-300"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="py-1">
+              {[
+                { label: "Profile", icon: FiUser, to: PATHS.SETTINGS_PROFILE },
+                { label: "Groups", icon: FiUsers, to: PATHS.GROUPS },
+                {
+                  label: "Notifications",
+                  icon: FiBell,
+                  to: PATHS.SETTINGS_NOTIFICATIONS,
+                },
+                {
+                  label: "Privacy",
+                  icon: FiShield,
+                  to: PATHS.SETTINGS_PRIVACY,
+                },
+                {
+                  label: "Appearance",
+                  icon: FiBellOff,
+                  to: PATHS.SETTINGS_APPEARANCE,
+                },
+                {
+                  label: "Settings",
+                  icon: FiSettings,
+                  to: PATHS.SETTINGS_PROFILE,
+                },
+              ].map(({ label, icon: Icon, to }) => (
+                <Link
+                  key={label}
+                  to={to}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                >
+                  <Icon className="h-4 w-4 text-slate-400" />
+                  {label}
+                </Link>
+              ))}
+            </div>
+            <div className="border-t border-slate-800 py-1">
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 px-4 py-3 text-sm text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
+              >
+                <FiLogOut className="h-4 w-4" />
+                Log out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };
