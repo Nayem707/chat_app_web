@@ -18,6 +18,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { PATHS } from "@/routes/routePaths";
 import { CHAT_FILTER } from "@/features/chat/chat.constants";
 import { CreateGroupModal } from "@/features/groups/components/CreateGroupModal";
+import { NewDirectMessageModal } from "@/features/chat/components/NewDirectMessageModal";
 import { normalizeUserList } from "@/features/groups/groupUtils";
 import {
   useCreateGroupMutation,
@@ -48,6 +49,7 @@ export const ChatSidebar = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState(CHAT_FILTER.ALL);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDmModalOpen, setIsDmModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { data: currentUserData } = useGetCurrentUserQuery();
@@ -91,7 +93,7 @@ export const ChatSidebar = () => {
         description: `Group chat created by ${currentUser?.name || "user"}`,
         memberIds: members,
       }).unwrap();
-      const created = result?.data?.data;
+      const created = result?.data;
       if (created?.id) navigate(PATHS.conversationById(created.id));
     } catch (err) {
       console.error("Failed to create group", err);
@@ -120,9 +122,9 @@ export const ChatSidebar = () => {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setIsDmModalOpen(true)}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-200 transition hover:border-violet-500 hover:text-violet-200"
-                aria-label="Create new group"
+                aria-label="New direct message"
               >
                 <FiPlus className="h-4 w-4" />
               </button>
@@ -252,6 +254,11 @@ export const ChatSidebar = () => {
         </div>
       </div>
 
+      <NewDirectMessageModal
+        isOpen={isDmModalOpen}
+        onClose={() => setIsDmModalOpen(false)}
+      />
+
       <CreateGroupModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -271,7 +278,7 @@ export const ChatSidebar = () => {
           >
             <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-                Navigate
+                Settings
               </p>
               <button
                 type="button"
@@ -282,9 +289,30 @@ export const ChatSidebar = () => {
               </button>
             </div>
             <div className="py-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsDmModalOpen(true);
+                }}
+                className="flex w-full items-center gap-3 px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+              >
+                <FiPlus className="h-4 w-4 text-slate-400" />
+                New Message
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsModalOpen(true);
+                }}
+                className="flex w-full items-center gap-3 px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+              >
+                <FiPlus className="h-4 w-4 text-slate-400" />
+                Create Group
+              </button>
+
               {[
-                { label: "Profile", icon: FiUser, to: PATHS.SETTINGS_PROFILE },
-                { label: "Groups", icon: FiUsers, to: PATHS.GROUPS },
                 {
                   label: "Notifications",
                   icon: FiBell,
@@ -316,16 +344,6 @@ export const ChatSidebar = () => {
                   {label}
                 </Link>
               ))}
-            </div>
-            <div className="border-t border-slate-800 py-1">
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex w-full items-center gap-3 px-4 py-3 text-sm text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
-              >
-                <FiLogOut className="h-4 w-4" />
-                Log out
-              </button>
             </div>
           </div>
         </div>
