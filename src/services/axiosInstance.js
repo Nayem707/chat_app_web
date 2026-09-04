@@ -19,11 +19,14 @@ export const axiosInstance = axios.create({
   },
 });
 
-// Attach the JWT access token to every outgoing request.
+// Attach the JWT access token; drop Content-Type for FormData so the browser sets the multipart boundary.
 axiosInstance.interceptors.request.use((config) => {
   const token = _store?.getState().auth?.accessToken;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
   }
   return config;
 });

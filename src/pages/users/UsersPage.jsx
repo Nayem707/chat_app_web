@@ -4,7 +4,10 @@ import { Avatar } from "@/components/ui/Avatar";
 import { FriendButton } from "@/features/friends/components/FriendButton";
 import { UserProfileModal } from "@/features/users/components/UserProfileModal";
 import { useSearchUsersQuery } from "@/features/users/userApi";
-import { useGetIncomingRequestsQuery } from "@/features/friends/friendApi";
+import {
+  useGetIncomingRequestsQuery,
+  useGetFriendsQuery,
+} from "@/features/friends/friendApi";
 import { normalizeUserList } from "@/features/groups/groupUtils";
 
 const TABS = ["All Users", "Friend Requests"];
@@ -18,8 +21,17 @@ export const UsersPage = () => {
     useSearchUsersQuery(query);
   const { data: requestsData, isLoading: requestsLoading } =
     useGetIncomingRequestsQuery();
+  const { data: friendsData } = useGetFriendsQuery();
 
-  const users = normalizeUserList(usersData);
+  const friendIds = useMemo(
+    () => new Set((friendsData?.data ?? []).map((f) => f.id)),
+    [friendsData],
+  );
+
+  const users = useMemo(
+    () => normalizeUserList(usersData).filter((u) => !friendIds.has(u.id)),
+    [usersData, friendIds],
+  );
   const incomingRequests = requestsData?.data ?? [];
 
   const isLoading = tab === "All Users" ? usersLoading : requestsLoading;

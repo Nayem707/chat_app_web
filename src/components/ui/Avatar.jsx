@@ -7,8 +7,23 @@ export const Avatar = ({ user, size = "md", className = "" }) => {
     xl: "h-14 w-14 text-base",
   };
 
-  const fallback =
-    user?.avatar || user?.name?.slice(0, 2).toUpperCase() || "AI";
+  const avatarUrl = user?.avatar;
+  const isRealImage =
+    avatarUrl &&
+    (avatarUrl.startsWith("/uploads") || avatarUrl.startsWith("http"));
+
+  if (isRealImage) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={user?.name || "User"}
+        title={user?.name || "User"}
+        className={`rounded-full object-cover ${sizeClasses[size]} ${className}`}
+      />
+    );
+  }
+
+  const initials = user?.name?.slice(0, 2).toUpperCase() || "??";
   const gradient = user?.color || "from-violet-500 to-indigo-500";
 
   return (
@@ -17,7 +32,7 @@ export const Avatar = ({ user, size = "md", className = "" }) => {
       aria-label={user?.name || "User avatar"}
       title={user?.name || "User"}
     >
-      {fallback}
+      {initials}
     </div>
   );
 };

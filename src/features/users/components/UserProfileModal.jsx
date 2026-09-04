@@ -55,7 +55,20 @@ export const UserProfileModal = ({ user, onClose }) => {
         <div className="overflow-y-auto rounded-t-3xl sm:rounded-3xl">
           {/* Cover */}
           <div
-            className={`h-28 w-full shrink-0 bg-gradient-to-br ${user.color ?? "from-violet-600 to-indigo-700"}`}
+            className={`h-28 w-full shrink-0 ${
+              user.coverUrl
+                ? ""
+                : `bg-gradient-to-br ${user.color ?? "from-violet-600 to-indigo-700"}`
+            }`}
+            style={
+              user.coverUrl
+                ? {
+                    backgroundImage: `url(${user.coverUrl})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }
+                : {}
+            }
           />
 
           {/* Avatar row overlapping cover */}

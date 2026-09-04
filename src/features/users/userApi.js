@@ -12,7 +12,23 @@ export const userApi = apiSlice.injectEndpoints({
         method: "PATCH",
         body: payload,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ["User", "Auth"],
+    }),
+    uploadAvatar: builder.mutation({
+      query: (formData) => ({
+        url: "/users/me/avatar",
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: ["User", "Auth"],
+    }),
+    uploadCover: builder.mutation({
+      query: (formData) => ({
+        url: "/users/me/cover",
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: ["User", "Auth"],
     }),
     searchUsers: builder.query({
       query: (q = "") => `/users/search?q=${encodeURIComponent(q)}`,
@@ -24,5 +40,7 @@ export const userApi = apiSlice.injectEndpoints({
 export const {
   useGetProfileQuery,
   useUpdateProfileMutation,
+  useUploadAvatarMutation,
+  useUploadCoverMutation,
   useSearchUsersQuery,
 } = userApi;

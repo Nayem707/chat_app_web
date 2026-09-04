@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   FiUser,
   FiMail,
@@ -6,10 +6,16 @@ import {
   FiEdit2,
   FiCheck,
   FiX,
+  FiCamera,
+  FiImage,
 } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 import { useGetCurrentUserQuery } from "@/features/auth/authApi";
-import { useUpdateProfileMutation } from "@/features/users/userApi";
+import {
+  useUpdateProfileMutation,
+  useUploadAvatarMutation,
+  useUploadCoverMutation,
+} from "@/features/users/userApi";
 
 const Stub = ({ name }) => (
   <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 text-slate-400">
@@ -21,6 +27,13 @@ export const ProfileSettingsPage = () => {
   const { data: currentUserData, isLoading } = useGetCurrentUserQuery();
   const currentUser = currentUserData?.data;
   const [updateProfile, { isLoading: isSaving }] = useUpdateProfileMutation();
+  const [uploadAvatar, { isLoading: isUploadingAvatar }] =
+    useUploadAvatarMutation();
+  const [uploadCover, { isLoading: isUploadingCover }] =
+    useUploadCoverMutation();
+
+  const avatarInputRef = useRef(null);
+  const coverInputRef = useRef(null);
 
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
@@ -46,6 +59,32 @@ export const ProfileSettingsPage = () => {
     }
   };
 
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("avatar", file);
+    try {
+      await uploadAvatar(fd).unwrap();
+    } catch {
+      /* noop */
+    }
+    e.target.value = "";
+  };
+
+  const handleCoverChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("cover", file);
+    try {
+      await uploadCover(fd).unwrap();
+    } catch {
+      /* noop */
+    }
+    e.target.value = "";
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16 text-sm text-slate-400">
@@ -54,35 +93,95 @@ export const ProfileSettingsPage = () => {
     );
   }
 
+  const coverBg = currentUser?.coverUrl
+    ? `url(${currentUser.coverUrl})`
+    : undefined;
+  const coverClass = currentUser?.coverUrl
+    ? ""
+    : `bg-gradient-to-br ${currentUser?.color ?? "from-violet-500 to-indigo-500"}`;
+
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      {/* Avatar + identity */}
-      <div className="flex items-center gap-5 rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-        <Avatar user={currentUser} size="xl" />
-        <div className="min-w-0">
-          <p className="truncate text-base font-semibold text-white">
-            {currentUser?.name}
-          </p>
-          <p className="truncate text-sm text-slate-400">
-            {currentUser?.email}
-          </p>
-          <span
-            className={`mt-1 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${
-              currentUser?.status === "online"
-                ? "bg-emerald-500/15 text-emerald-400"
-                : "bg-slate-700/60 text-slate-400"
-            }`}
+    <div className="mx-auto max-w-2xl space-y-6">
+      {/* Cover + Avatar upload card */}
+      <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60">
+        {/* Cover */}
+        <div
+          className={`relative h-44 w-full ${coverClass}`}
+          style={
+            coverBg
+              ? {
+                  backgroundImage: coverBg,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }
+              : {}
+          }
+        >
+          <button
+            type="button"
+            disabled={isUploadingCover}
+            onClick={() => coverInputRef.current?.click()}
+            className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-full bg-slate-950/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition hover:bg-slate-900 disabled:opacity-50"
           >
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                currentUser?.status === "online"
-                  ? "bg-emerald-400"
-                  : "bg-slate-500"
-              }`}
-            />
-            {currentUser?.status === "online" ? "Online" : "Offline"}
-          </span>
+            <FiImage className="h-3.5 w-3.5" />
+            {isUploadingCover ? "Uploading…" : "Change"}
+          </button>
+          <input
+            ref={coverInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleCoverChange}
+          />
         </div>
+
+        {/* Avatar row */}
+        <div className="-mt-0 flex items-end justify-between px-5 pb-4">
+          <div className="relative">
+            <Avatar
+              user={currentUser}
+              size="xl"
+              className="ring-4 ring-slate-900 bg-amber-50"
+            />
+            <button
+              type="button"
+              disabled={isUploadingAvatar}
+              onClick={() => avatarInputRef.current?.click()}
+              className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-white shadow transition hover:bg-violet-500 disabled:opacity-50"
+              title="Change avatar"
+            >
+              <FiCamera className="h-3 w-3" />
+            </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Read-only info */}
+      <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-500">
+          Account info
+        </h2>
+        {[
+          { icon: FiAtSign, label: "Username", value: currentUser?.username },
+          { icon: FiMail, label: "Email", value: currentUser?.email },
+        ].map(({ icon: Icon, label, value }) => (
+          <div key={label} className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 text-slate-400">
+              <Icon className="h-3.5 w-3.5" />
+            </div>
+            <div>
+              <p className="text-[11px] text-slate-500">{label}</p>
+              <p className="text-sm text-slate-200">{value || "—"}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Editable form */}
@@ -143,27 +242,6 @@ export const ProfileSettingsPage = () => {
           )}
         </button>
       </form>
-
-      {/* Read-only info */}
-      <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-500">
-          Account info
-        </h2>
-        {[
-          { icon: FiMail, label: "Email", value: currentUser?.email },
-          { icon: FiAtSign, label: "Username", value: currentUser?.username },
-        ].map(({ icon: Icon, label, value }) => (
-          <div key={label} className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 text-slate-400">
-              <Icon className="h-3.5 w-3.5" />
-            </div>
-            <div>
-              <p className="text-[11px] text-slate-500">{label}</p>
-              <p className="text-sm text-slate-200">{value || "—"}</p>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

@@ -51,9 +51,7 @@ export const MessageList = ({
                 : {
                     name: message.senderName || "User",
                     color: "from-violet-500 to-indigo-500",
-                    avatar: (message.senderName || "U")
-                      .slice(0, 2)
-                      .toUpperCase(),
+                    avatar: message.senderAvatar || "",
                   };
 
               return (
