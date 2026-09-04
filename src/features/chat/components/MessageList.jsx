@@ -7,6 +7,8 @@ import {
   FiEdit2,
   FiTrash2,
   FiMoreHorizontal,
+  FiEye,
+  FiX,
 } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 import {
@@ -28,15 +30,70 @@ const getStatusIcon = (status) => {
   return <FiClock className="h-3.5 w-3.5 text-slate-400" />;
 };
 
+const ImageLightbox = ({ src, alt, onClose }) => {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-slate-800/80 text-slate-200 transition hover:bg-slate-700 hover:text-white"
+        aria-label="Close"
+      >
+        <FiX className="h-5 w-5" />
+      </button>
+      <img
+        src={src}
+        alt={alt}
+        onClick={(e) => e.stopPropagation()}
+        className="max-h-[90dvh] max-w-[90dvw] rounded-2xl object-contain shadow-2xl"
+      />
+    </div>
+  );
+};
+
 const MessageAttachment = ({ message, isCurrentUser }) => {
+  const [lightbox, setLightbox] = useState(false);
   if (!message.attachmentUrl) return null;
   if (message.type === "IMAGE") {
     return (
-      <img
-        src={message.attachmentUrl}
-        alt={message.attachmentName || "image"}
-        className="mt-1.5 max-h-60 max-w-xs rounded-xl object-cover"
-      />
+      <>
+        <button
+          type="button"
+          onClick={() => setLightbox(true)}
+          className="group/img relative mt-1.5 block overflow-hidden rounded-xl"
+        >
+          <img
+            src={message.attachmentUrl}
+            alt={message.attachmentName || "image"}
+            className="max-h-60 max-w-xs object-cover transition duration-200 group-hover/img:brightness-75"
+          />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 transition duration-200 group-hover/img:opacity-100">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-950/60 text-white backdrop-blur-sm">
+              <FiEye className="h-5 w-5" />
+            </div>
+          </div>
+        </button>
+        {lightbox && (
+          <ImageLightbox
+            src={message.attachmentUrl}
+            alt={message.attachmentName || "image"}
+            onClose={() => setLightbox(false)}
+          />
+        )}
+      </>
     );
   }
   return (
