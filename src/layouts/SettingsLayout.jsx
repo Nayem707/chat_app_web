@@ -10,8 +10,10 @@ import {
   FiUserPlus,
   FiUsers,
 } from "react-icons/fi";
+import { BiHome } from "react-icons/bi";
 
 const settingsNav = [
+  { label: "Home", to: PATHS.HOME, icon: BiHome },
   { label: "Profile", to: PATHS.SETTINGS_PROFILE, icon: FiUser },
   { label: "People", to: PATHS.USERS, icon: FiUserPlus },
   { label: "Friends", to: PATHS.FRIENDS, icon: FiUsers },
