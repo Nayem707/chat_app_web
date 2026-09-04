@@ -37,6 +37,15 @@ const axiosBaseQuery = async (args, api) => {
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: axiosBaseQuery,
-  tagTypes: ["Auth", "User", "Conversation", "Message", "Group"],
+  tagTypes: [
+    "Auth",
+    "User",
+    "Conversation",
+    "Message",
+    "Group",
+    "Friend",
+    "FriendRequest",
+    "FriendStatus",
+  ],
   endpoints: () => ({}),
 });

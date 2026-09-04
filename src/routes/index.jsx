@@ -17,6 +17,8 @@ import { UnauthorizedPage } from "@/pages/error/UnauthorizedPage";
 import { GroupsPage } from "@/pages/groups/GroupsPage";
 import { CreateGroupPage } from "@/pages/groups/CreateGroupPage";
 import { GroupDetailsPage } from "@/pages/groups/GroupDetailsPage";
+import { UsersPage } from "@/pages/users/UsersPage";
+import { FriendsPage } from "@/pages/friends/FriendsPage";
 import {
   ProfileSettingsPage,
   AccountSettingsPage,
@@ -65,6 +67,10 @@ export const router = createBrowserRouter([
           { path: PATHS.GROUPS, element: <GroupsPage /> },
           { path: PATHS.CREATE_GROUP, element: <CreateGroupPage /> },
           { path: PATHS.GROUP_DETAILS, element: <GroupDetailsPage /> },
+
+          // People & Friends
+          { path: PATHS.USERS, element: <UsersPage /> },
+          { path: PATHS.FRIENDS, element: <FriendsPage /> },
 
           // Settings — nested under SettingsLayout for the nav sidebar
           {

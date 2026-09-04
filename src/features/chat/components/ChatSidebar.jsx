@@ -5,12 +5,11 @@ import {
   FiBellOff,
   FiFilter,
   FiLogOut,
-  FiMoreHorizontal,
   FiPlus,
   FiSearch,
   FiSettings,
   FiShield,
-  FiUser,
+  FiUserPlus,
   FiUsers,
 } from "react-icons/fi";
 
@@ -19,7 +18,6 @@ import { PATHS } from "@/routes/routePaths";
 import { CHAT_FILTER } from "@/features/chat/chat.constants";
 import { CreateGroupModal } from "@/features/groups/components/CreateGroupModal";
 import { NewDirectMessageModal } from "@/features/chat/components/NewDirectMessageModal";
-import { normalizeUserList } from "@/features/groups/groupUtils";
 import {
   useCreateGroupMutation,
   useGetConversationsQuery,
@@ -28,7 +26,7 @@ import {
   useGetCurrentUserQuery,
   useLogoutMutation,
 } from "@/features/auth/authApi";
-import { useSearchUsersQuery } from "@/features/users/userApi";
+import { useGetFriendsQuery } from "@/features/friends/friendApi";
 
 const formatRelativeTime = (value) => {
   if (!value) return "now";
@@ -71,8 +69,10 @@ export const ChatSidebar = () => {
     [conversationsData],
   );
 
-  const { data: usersData } = useSearchUsersQuery("", { skip: !currentUser });
-  const users = normalizeUserList(usersData);
+  const { data: usersData } = useGetFriendsQuery(undefined, {
+    skip: !currentUser,
+  });
+  const users = usersData?.data ?? [];
 
   const [createGroup] = useCreateGroupMutation();
 
@@ -314,6 +314,16 @@ export const ChatSidebar = () => {
 
               {[
                 {
+                  label: "People",
+                  icon: FiUserPlus,
+                  to: PATHS.USERS,
+                },
+                {
+                  label: "Friends",
+                  icon: FiUsers,
+                  to: PATHS.FRIENDS,
+                },
+                {
                   label: "Notifications",
                   icon: FiBell,
                   to: PATHS.SETTINGS_NOTIFICATIONS,
@@ -344,7 +354,17 @@ export const ChatSidebar = () => {
                   {label}
                 </Link>
               ))}
-            </div>
+            </div>{" "}
+            <div className="border-t border-slate-800 py-1">
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 px-4 py-3 text-sm text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
+              >
+                <FiLogOut className="h-4 w-4" />
+                Log out
+              </button>
+            </div>{" "}
           </div>
         </div>
       )}

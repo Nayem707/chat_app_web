@@ -4,8 +4,7 @@ import { FiSearch, FiX } from "react-icons/fi";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { PATHS } from "@/routes/routePaths";
-import { normalizeUserList } from "@/features/groups/groupUtils";
-import { useSearchUsersQuery } from "@/features/users/userApi";
+import { useGetFriendsQuery } from "@/features/friends/friendApi";
 import { useCreateConversationMutation } from "@/features/chat/chatApi";
 
 export const NewDirectMessageModal = ({ isOpen, onClose }) => {
@@ -13,8 +12,17 @@ export const NewDirectMessageModal = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState("");
   const [loadingId, setLoadingId] = useState(null);
 
-  const { data: usersData } = useSearchUsersQuery(query, { skip: !isOpen });
-  const users = normalizeUserList(usersData);
+  const { data: friendsData } = useGetFriendsQuery(undefined, {
+    skip: !isOpen,
+  });
+  const allFriends = friendsData?.data ?? [];
+  const friends = query
+    ? allFriends.filter(
+        (f) =>
+          f.name?.toLowerCase().includes(query.toLowerCase()) ||
+          f.email?.toLowerCase().includes(query.toLowerCase()),
+      )
+    : allFriends;
 
   const [createConversation] = useCreateConversationMutation();
 
@@ -71,20 +79,22 @@ export const NewDirectMessageModal = ({ isOpen, onClose }) => {
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search people…"
+              placeholder="Search friends…"
               className="w-full bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none"
             />
           </div>
         </div>
 
-        {/* User list */}
+        {/* Friends list */}
         <div className="max-h-80 overflow-y-auto pb-2">
-          {users.length === 0 ? (
+          {friends.length === 0 ? (
             <p className="px-4 py-6 text-center text-sm text-slate-500">
-              {query ? "No users found." : "Start typing to search…"}
+              {allFriends.length === 0
+                ? "You have no friends yet."
+                : "No friends match your search."}
             </p>
           ) : (
-            users.map((user) => (
+            friends.map((user) => (
               <button
                 key={user.id}
                 type="button"
