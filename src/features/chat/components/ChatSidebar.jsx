@@ -324,21 +324,6 @@ export const ChatSidebar = () => {
                   to: PATHS.FRIENDS,
                 },
                 {
-                  label: "Notifications",
-                  icon: FiBell,
-                  to: PATHS.SETTINGS_NOTIFICATIONS,
-                },
-                {
-                  label: "Privacy",
-                  icon: FiShield,
-                  to: PATHS.SETTINGS_PRIVACY,
-                },
-                {
-                  label: "Appearance",
-                  icon: FiBellOff,
-                  to: PATHS.SETTINGS_APPEARANCE,
-                },
-                {
                   label: "Settings",
                   icon: FiSettings,
                   to: PATHS.SETTINGS_PROFILE,
