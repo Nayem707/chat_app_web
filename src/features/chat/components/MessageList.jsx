@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useRef } from "react";
-import { FiCheck, FiClock } from "react-icons/fi";
+import { FiCheck, FiClock, FiFile, FiDownload } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 
 const formatMessageTime = (value) =>
@@ -14,6 +14,35 @@ const getStatusIcon = (status) => {
   if (status === "DELIVERED")
     return <FiCheck className="h-3.5 w-3.5 text-slate-300" />;
   return <FiClock className="h-3.5 w-3.5 text-slate-400" />;
+};
+
+const MessageAttachment = ({ message, isCurrentUser }) => {
+  if (!message.attachmentUrl) return null;
+  if (message.type === "IMAGE") {
+    return (
+      <img
+        src={message.attachmentUrl}
+        alt={message.attachmentName || "image"}
+        className="mt-1.5 max-h-60 max-w-xs rounded-xl object-cover"
+      />
+    );
+  }
+  return (
+    <a
+      href={message.attachmentUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`mt-1.5 flex items-center gap-2 rounded-xl px-3 py-2 text-xs transition ${
+        isCurrentUser
+          ? "bg-violet-700/60 hover:bg-violet-700"
+          : "bg-slate-800 hover:bg-slate-700"
+      }`}
+    >
+      <FiFile className="h-4 w-4 shrink-0" />
+      <span className="truncate">{message.attachmentName || "file"}</span>
+      <FiDownload className="h-3.5 w-3.5 shrink-0 opacity-70" />
+    </a>
+  );
 };
 
 export const MessageList = ({
@@ -77,9 +106,15 @@ export const MessageList = ({
                           : "border border-slate-700 bg-slate-900/90 text-slate-100"
                       }`}
                     >
-                      <p className="whitespace-pre-wrap break-words text-sm leading-6">
-                        {message.text}
-                      </p>
+                      {message.text && (
+                        <p className="whitespace-pre-wrap break-words text-sm leading-6">
+                          {message.text}
+                        </p>
+                      )}
+                      <MessageAttachment
+                        message={message}
+                        isCurrentUser={isCurrentUser}
+                      />
                     </div>
                     <div
                       className={`mt-1 flex items-center gap-1 text-[10px] ${isCurrentUser ? "justify-end text-violet-300" : "text-slate-400"}`}

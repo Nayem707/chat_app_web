@@ -77,6 +77,14 @@ export const chatApi = apiSlice.injectEndpoints({
       // Only refresh the sidebar preview; message cache is updated above.
       invalidatesTags: ["Conversation"],
     }),
+    sendMessageWithAttachment: builder.mutation({
+      query: ({ conversationId, formData }) => ({
+        url: `/conversations/${conversationId}/messages/attachment`,
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: ["Message", "Conversation"],
+    }),
     editMessage: builder.mutation({
       query: ({ conversationId, messageId, content }) => ({
         url: `/conversations/${conversationId}/messages/${messageId}`,
@@ -145,6 +153,7 @@ export const {
   useGetConversationQuery,
   useGetMessagesQuery,
   useSendMessageMutation,
+  useSendMessageWithAttachmentMutation,
   useEditMessageMutation,
   useDeleteMessageMutation,
   useCreateGroupMutation,

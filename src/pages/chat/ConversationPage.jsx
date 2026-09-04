@@ -18,12 +18,12 @@ import {
 
 import { Avatar } from "@/components/ui/Avatar";
 import { MessageList } from "@/features/chat/components/MessageList";
+import { MessageComposer } from "@/features/chat/components/MessageComposer";
 import { GroupMembers } from "@/features/groups/components/GroupMembers";
 import { UserProfilePanel } from "@/features/chat/components/UserProfilePanel";
 import {
   useGetConversationsQuery,
   useGetMessagesQuery,
-  useSendMessageMutation,
 } from "@/features/chat/chatApi";
 import {
   useGetCurrentUserQuery,
@@ -55,8 +55,6 @@ export const ConversationPage = () => {
   const currentUser = currentUserData?.data;
 
   const [logout] = useLogoutMutation();
-  const [sendMessage] = useSendMessageMutation();
-  const [draft, setDraft] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const typingTimeoutRef = useRef(null);
   const menuRef = useRef(null);
@@ -107,33 +105,6 @@ export const ConversationPage = () => {
       { skip: !conversationId },
     );
   const activeMessages = messagesData?.data?.items || [];
-
-  const handleSend = async () => {
-    const content = draft.trim();
-    if (!content || !conversationId || !currentUser) return;
-
-    setDraft("");
-
-    try {
-      await sendMessage({
-        conversationId,
-        content,
-        optimisticMessage: {
-          id: `temp_${Date.now()}`,
-          conversationId,
-          senderId: currentUser.id,
-          senderName: currentUser.name,
-          text: content,
-          content,
-          status: "SENT",
-          createdAt: new Date().toISOString(),
-        },
-      }).unwrap();
-    } catch (err) {
-      setDraft(content);
-      console.error("Failed to send message", err);
-    }
-  };
 
   const handleLogout = async () => {
     setIsMenuOpen(false);
@@ -298,44 +269,11 @@ export const ConversationPage = () => {
           )}
 
           {/* Composer */}
-          <div className="border-t border-slate-800 bg-slate-950/80 p-3 sm:p-4">
-            <div className="flex items-end gap-2 rounded-[22px] border border-slate-700 bg-slate-900 p-2 shadow-lg shadow-slate-950/30 sm:gap-3 sm:p-3">
-              <button
-                type="button"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-950 text-slate-400 transition hover:text-slate-100"
-              >
-                <FiSettings className="h-4 w-4" />
-              </button>
-              <textarea
-                value={draft}
-                onChange={(e) => {
-                  setDraft(e.target.value);
-                  socketService.emit("typing_start", { conversationId });
-                  clearTimeout(typingTimeoutRef.current);
-                  typingTimeoutRef.current = setTimeout(
-                    () => socketService.emit("typing_stop", { conversationId }),
-                    2000,
-                  );
-                }}
-                rows={1}
-                placeholder="Type your message…"
-                className="max-h-32 min-h-11 flex-1 resize-none bg-transparent px-2 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-              />
-              <button
-                type="button"
-                onClick={handleSend}
-                className="flex h-11 items-center justify-center rounded-full bg-violet-600 px-4 text-sm font-medium text-white transition hover:bg-violet-500"
-              >
-                Send
-              </button>
-            </div>
-          </div>
+          <MessageComposer
+            conversationId={conversationId}
+            currentUser={currentUser}
+            typingTimeoutRef={typingTimeoutRef}
+          />
         </div>
       </div>
 
