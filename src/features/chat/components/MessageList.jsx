@@ -100,13 +100,13 @@ export const MessageList = ({
             {visibleTyping.length > 0 && (
               <div className="flex items-center gap-2 pl-2 text-xs text-slate-400">
                 <div className="flex items-center gap-1 rounded-full border border-slate-700 bg-slate-900 px-2 py-1.5">
-                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-violet-300 [animation-delay:0ms]" />
-                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-violet-300 [animation-delay:120ms]" />
-                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-violet-300 [animation-delay:240ms]" />
+                  <span className="h-1 w-1 animate-bounce rounded-full bg-violet-300 [animation-delay:0ms]" />
+                  <span className="h-1 w-1 animate-bounce rounded-full bg-violet-300 [animation-delay:120ms]" />
+                  <span className="h-1 w-1 animate-bounce rounded-full bg-violet-300 [animation-delay:240ms]" />
                 </div>
                 <span>
                   {visibleTyping.length === 1
-                    ? "Someone is typing..."
+                    ? "Typing..."
                     : "Several people are typing..."}
                 </span>
               </div>

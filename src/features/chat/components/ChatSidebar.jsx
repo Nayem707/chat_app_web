@@ -1,6 +1,12 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FiFilter, FiPlus, FiSearch, FiUsers } from "react-icons/fi";
+import {
+  FiFilter,
+  FiMoreHorizontal,
+  FiPlus,
+  FiSearch,
+  FiUsers,
+} from "react-icons/fi";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { PATHS } from "@/routes/routePaths";
@@ -92,14 +98,27 @@ export const ChatSidebar = () => {
                 </div>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-200 transition hover:border-violet-500 hover:text-violet-200"
-              aria-label="Create new group"
-            >
-              <FiPlus className="h-4 w-4" />
-            </button>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-200 transition hover:border-violet-500 hover:text-violet-200"
+                aria-label="Create new group"
+              >
+                <FiPlus className="h-4 w-4" />
+              </button>
+
+              {/* More options dropdown */}
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-200 transition hover:border-violet-500 hover:text-violet-200"
+                aria-label="Create new group"
+              >
+                <FiMoreHorizontal className="h-4 w-4" />
+              </button>
+            </div>
           </div>
 
           {/* Search */}
