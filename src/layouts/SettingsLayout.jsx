@@ -7,10 +7,14 @@ import {
   FiBell,
   FiLock,
   FiSliders,
+  FiUserPlus,
+  FiUsers,
 } from "react-icons/fi";
 
 const settingsNav = [
   { label: "Profile", to: PATHS.SETTINGS_PROFILE, icon: FiUser },
+  { label: "People", to: PATHS.USERS, icon: FiUserPlus },
+  { label: "Friends", to: PATHS.FRIENDS, icon: FiUsers },
   { label: "Account", to: PATHS.SETTINGS_ACCOUNT, icon: FiSettings },
   { label: "Privacy", to: PATHS.SETTINGS_PRIVACY, icon: FiShield },
   { label: "Notifications", to: PATHS.SETTINGS_NOTIFICATIONS, icon: FiBell },

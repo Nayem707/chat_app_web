@@ -9,8 +9,8 @@ export const PATHS = {
   CONVERSATION: "/chat/:conversationId",
   conversationById: (id) => `/chat/${id}`,
 
-  USERS: "/users",
-  FRIENDS: "/friends",
+  USERS: "/settings/people",
+  FRIENDS: "/settings/friends",
 
   GROUPS: "/groups",
   CREATE_GROUP: "/groups/create",

@@ -68,14 +68,13 @@ export const router = createBrowserRouter([
           { path: PATHS.CREATE_GROUP, element: <CreateGroupPage /> },
           { path: PATHS.GROUP_DETAILS, element: <GroupDetailsPage /> },
 
-          // People & Friends
-          { path: PATHS.USERS, element: <UsersPage /> },
-          { path: PATHS.FRIENDS, element: <FriendsPage /> },
-
-          // Settings — nested under SettingsLayout for the nav sidebar
+          // Nested under SettingsLayout for unified nav sidebar
           {
             element: <SettingsLayout />,
             children: [
+              // People & Friends
+              { path: PATHS.USERS, element: <UsersPage /> },
+              { path: PATHS.FRIENDS, element: <FriendsPage /> },
               {
                 path: PATHS.SETTINGS,
                 element: <Navigate to={PATHS.SETTINGS_PROFILE} replace />,
