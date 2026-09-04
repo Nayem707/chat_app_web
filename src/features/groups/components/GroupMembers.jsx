@@ -4,29 +4,24 @@ import { Avatar } from "@/components/ui/Avatar";
 export const GroupMembers = ({ members = [], conversationName }) => {
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-slate-800 p-5">
+      <div className="border-b border-slate-800 p-[22px]">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium tracking-[0.18em] text-violet-300 uppercase">
+            <h4 className="text-md font-medium tracking-[0.18em] text-violet-300 uppercase">
               Room details
-            </p>
-            <h3 className="mt-2 text-xl font-semibold text-white">
-              {conversationName}
-            </h3>
-          </div>
-          <div className="rounded-full border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-300">
-            {members.length} members
+            </h4>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 space-y-4 p-5">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-          <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-200">
+      <div className="flex-1 space-y-4">
+        <div className="border-b border-slate-800 bg-slate-900/70">
+          <div className="flex border-b border-slate-800 items-center gap-2 text-sm font-medium text-slate-200 p-[17px]">
             <FiUsers className="h-4 w-4 text-violet-300" />
-            Members
+            {members.length} members
           </div>
-          <div className="space-y-3">
+
+          <div className="space-y-2 h-96 overflow-auto p-3">
             {members.map((member) => (
               <div
                 key={member.id}
@@ -53,7 +48,7 @@ export const GroupMembers = ({ members = [], conversationName }) => {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 m-4">
           <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-200">
             <FiShield className="h-4 w-4 text-amber-300" />
             Permissions
